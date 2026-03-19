@@ -1,0 +1,583 @@
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://sdk.cashfree.com/js/v3/cashfree.js"></script>
+
+<style>
+    /* Force box sizing to prevent layout breakage */
+    .custom-booking-wrapper, .custom-booking-wrapper * {
+        box-sizing: border-box;
+        font-family: 'Poppins', sans-serif;
+    }
+
+    :root {
+        --primary: #d35400;
+        --primary-hover: #e67e22;
+        --secondary: #2c3e50;
+        --input-bg: #fdfdfd;
+        --border-color: #e0e0e0;
+    }
+
+    .custom-booking-wrapper {
+        width: 100%;
+        margin: 0 auto;
+        padding: 10px;
+    }
+
+    .custom-booking-card {
+        background: #ffffff;
+        padding: 35px;
+        border-radius: 16px;
+        box-shadow: 0 15px 40px rgba(0,0,0,0.08);
+        border-top: 6px solid var(--primary);
+        max-width: 1000px;
+        margin: 0 auto;
+    }
+
+    .booking-header {
+        text-align: center;
+        margin-bottom: 30px;
+        border-bottom: 1px solid #f0f0f0;
+        padding-bottom: 20px;
+    }
+
+    .booking-header h3 {
+        color: var(--secondary);
+        font-size: 26px;
+        margin: 0 0 8px 0;
+        font-weight: 700;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+    }
+
+    .booking-header p {
+        font-size: 14px;
+        color: #777;
+        margin: 0;
+    }
+
+    .bf-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 25px;
+    }
+
+    .bf-group {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .bf-group label {
+        font-size: 13px;
+        font-weight: 600;
+        color: var(--secondary);
+        margin-bottom: 6px;
+        margin-left: 4px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .bf-input-wrapper {
+        position: relative;
+        display: flex;
+        align-items: center;
+    }
+
+    .bf-icon {
+        position: absolute;
+        left: 15px;
+        font-size: 18px;
+        color: #888;
+        z-index: 10;
+        pointer-events: none;
+        display: flex;
+        align-items: center;
+        height: 100%;
+    }
+
+    .bf-group input,
+    .bf-group select {
+        width: 100%;
+        height: 50px;
+        padding: 0 15px 0 50px !important;
+        border: 2px solid var(--border-color) !important;
+        border-radius: 10px !important;
+        font-size: 15px !important;
+        background-color: #f3f3f3 !important;
+        color: #333 !important;
+        transition: all 0.3s ease;
+        outline: none;
+        appearance: none;
+    }
+
+    .bf-group select {
+        background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23333%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E");
+        background-repeat: no-repeat;
+        background-position: right 15px top 50%;
+        background-size: 10px auto;
+    }
+
+    .bf-group input:focus,
+    .bf-group select:focus {
+        border-color: var(--primary) !important;
+        box-shadow: 0 0 0 4px rgba(211, 84, 0, 0.1) !important;
+        background-color: #fff !important;
+    }
+
+    .helper {
+        font-size: 12px;
+        color: #777;
+        margin-top: 5px;
+        margin-left: 5px;
+    }
+
+    .bf-footer {
+        grid-column: span 2;
+        background: #fff9f0;
+        padding: 20px 25px;
+        border-radius: 12px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border: 1px solid #ffeeba;
+        margin-top: 15px;
+    }
+
+    .total-box label {
+        font-size: 12px;
+        color: #666;
+        display: block;
+        margin-bottom: 0;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+
+    .total-box input {
+        border: none !important;
+        background: transparent !important;
+        font-size: 28px !important;
+        font-weight: 800 !important;
+        color: var(--primary) !important;
+        width: 150px;
+        padding: 0 !important;
+        height: auto !important;
+        box-shadow: none !important;
+    }
+
+    .pay-btn {
+        background: linear-gradient(135deg, var(--primary), var(--primary-hover));
+        color: white;
+        padding: 14px 40px;
+        border-radius: 50px;
+        font-size: 16px;
+        font-weight: 700;
+        border: none;
+        cursor: pointer;
+        transition: transform 0.2s, box-shadow 0.2s;
+        box-shadow: 0 5px 15px rgba(211, 84, 0, 0.3);
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .pay-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 25px rgba(211, 84, 0, 0.4);
+    }
+
+    @media (max-width: 768px) {
+        .bf-grid { grid-template-columns: 1fr; gap: 20px; }
+        .bf-footer { grid-column: span 1; flex-direction: column; gap: 20px; text-align: center; }
+        .total-box input { text-align: center; }
+        .pay-btn { width: 100%; justify-content: center; }
+        .custom-booking-card { padding: 25px 20px; }
+    }
+
+    /* Modal */
+    .modal-overlay {
+        display: none;
+        position: fixed; top: 0; left: 0;
+        width: 100%; height: 100%;
+        background: rgba(0, 0, 0, 0.7);
+        z-index: 99999;
+        justify-content: center; align-items: center;
+        backdrop-filter: blur(5px);
+    }
+    .modal-content {
+        background: white; padding: 30px; border-radius: 20px;
+        width: 90%; max-width: 450px; text-align: center;
+        box-shadow: 0 25px 50px rgba(0,0,0,0.3);
+        animation: zoomIn 0.3s ease;
+    }
+    .modal-list { background: #f8f9fa; padding: 15px; border-radius: 10px; margin: 20px 0; text-align: left; font-size: 14px; border: 1px solid #eee; }
+    .modal-list p { margin: 8px 0; border-bottom: 1px dashed #e0e0e0; padding-bottom: 8px; display: flex; justify-content: space-between; }
+    .whatsapp-btn-modal {
+        background: #25D366; color: white; border: none; padding: 14px;
+        border-radius: 50px; width: 100%; font-weight: 700; cursor: pointer;
+        display: flex; align-items: center; justify-content: center; gap: 10px;
+        font-size: 16px;
+        text-decoration: none;
+    }
+    @keyframes zoomIn { from {transform: scale(0.9); opacity: 0;} to {transform: scale(1); opacity: 1;} }
+</style>
+
+<div class="custom-booking-wrapper">
+    <div class="custom-booking-card" id="book-now">
+        <div class="booking-header">
+            <h3>⚡ Book Seat Online</h3>
+            <p>Instant Confirmation • 100% Secure Payment</p>
+        </div>
+
+        <form id="bookingForm" onsubmit="initiatePayment(); return false;">
+            <div class="bf-grid">
+
+                <div class="bf-group">
+                    <label>Full Name</label>
+                    <div class="bf-input-wrapper">
+                        <span class="bf-icon">👤</span>
+                        <input type="text" id="name" placeholder="Enter your full name" required>
+                    </div>
+                </div>
+
+                <div class="bf-group">
+                    <label>Mobile Number</label>
+                    <div class="bf-input-wrapper">
+                        <span class="bf-icon">📞</span>
+                        <input type="tel" id="phone" placeholder="10-digit number"
+                               pattern="[6-9][0-9]{9}" maxlength="10"
+                               oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, 10)"
+                               required>
+                    </div>
+                </div>
+
+                <div class="bf-group">
+                    <label>Journey Date</label>
+                    <div class="bf-input-wrapper">
+                        <span class="bf-icon">📅</span>
+                        <input type="date" id="date" required>
+                    </div>
+                </div>
+
+                <div class="bf-group">
+                    <label>Pickup Point</label>
+                    <div class="bf-input-wrapper">
+                        <span class="bf-icon">📍</span>
+                        <select id="pickup" onchange="calculateTotal()" required>
+                            <option value="" data-zone="western">Select Pickup Location...</option>
+                            <optgroup label="WESTERN LINE (Starts ₹200)">
+                                <option value="Bhayander (06:20 AM)" data-zone="western">Bhayander - 06:20 AM</option>
+                                <option value="Mira Road (06:25 AM)" data-zone="western">Mira Road - 06:25 AM</option>
+                                <option value="Dahisar (06:45 AM)" data-zone="western">Dahisar - 06:45 AM</option>
+                                <option value="Borivali East (07:00 AM)" data-zone="western">Borivali East - 07:00 AM</option>
+                                <option value="Borivali West (07:00 AM)" data-zone="western">Borivali West - 07:00 AM</option>
+                                <option value="Kandivali East (07:30 AM)" data-zone="western">Kandivali East - 07:30 AM</option>
+                                <option value="Malad East (07:40 AM)" data-zone="western">Malad East - 07:40 AM</option>
+                                <option value="Goregaon East (07:45 AM)" data-zone="western">Goregaon East - 07:45 AM</option>
+                                <option value="Jogeshwari East (07:50 AM)" data-zone="western">Jogeshwari East - 07:50 AM</option>
+                                <option value="Andheri East (08:00 AM)" data-zone="western">Andheri East - 08:00 AM</option>
+                                <option value="Vile Parle East (08:05 AM)" data-zone="western">Vile Parle East - 08:05 AM</option>
+                                <option value="Santacruz East (08:10 AM)" data-zone="western">Santacruz East - 08:10 AM</option>
+                                <option value="Bandra East (08:15 AM)" data-zone="western">Bandra East - 08:15 AM</option>
+                                <option value="Mumbai Central (09:00 AM)" data-zone="western">Mumbai Central - 09:00 AM</option>
+                            </optgroup>
+                            <optgroup label="CENTRAL LINE (Starts ₹250)">
+                                <option value="Thane West (07:15 AM)" data-zone="central">Thane West - 07:15 AM</option>
+                                <option value="Mulund West (07:35 AM)" data-zone="central">Mulund West - 07:35 AM</option>
+                                <option value="Bhandup East (08:00 AM)" data-zone="central">Bhandup East - 08:00 AM</option>
+                                <option value="Vikhroli East (08:10 AM)" data-zone="central">Vikhroli East - 08:10 AM</option>
+                                <option value="Ghatkopar East (08:15 AM)" data-zone="central">Ghatkopar East - 08:15 AM</option>
+                                <option value="Chembur (08:20 AM)" data-zone="central">Chembur - 08:20 AM</option>
+                                <option value="Sion (08:35 AM)" data-zone="central">Sion Circle - 08:35 AM</option>
+                                <option value="Matunga (08:40 AM)" data-zone="central">Matunga - 08:40 AM</option>
+                                <option value="Dadar East (08:45 AM)" data-zone="central">Dadar East - 08:45 AM</option>
+                                <option value="Parel (08:50 AM)" data-zone="central">Parel - 08:50 AM</option>
+                                <option value="Byculla East (09:15 AM)" data-zone="central">Byculla East - 09:15 AM</option>
+                            </optgroup>
+                            <optgroup label="NAVI MUMBAI (Starts ₹350)">
+                                <option value="Panvel (06:30 AM)" data-zone="navi">Panvel - 06:30 AM</option>
+                                <option value="Kalamboli (06:40 AM)" data-zone="navi">Kalamboli - 06:40 AM</option>
+                                <option value="Kamothe (06:45 AM)" data-zone="navi">Kamothe - 06:45 AM</option>
+                                <option value="Kharghar (07:00 AM)" data-zone="navi">Kharghar - 07:00 AM</option>
+                                <option value="Belapur (07:05 AM)" data-zone="navi">Belapur - 07:05 AM</option>
+                                <option value="Seawoods (07:10 AM)" data-zone="navi">Seawoods - 07:10 AM</option>
+                                <option value="Nerul (07:15 AM)" data-zone="navi">Nerul - 07:15 AM</option>
+                                <option value="Vashi (07:30 AM)" data-zone="navi">Vashi - 07:30 AM</option>
+                                <option value="Koperkhairane (07:40 AM)" data-zone="navi">Koperkhairane - 07:40 AM</option>
+                                <option value="Airoli (08:00 AM)" data-zone="navi">Airoli - 08:00 AM</option>
+                                <option value="Ghansoli (07:30 AM)" data-zone="navi">Ghansoli - 07:30 AM</option>
+                                <option value="Rabale (07:35 AM)" data-zone="navi">Rabale - 07:35 AM</option>
+                            </optgroup>
+                            <optgroup label="KALYAN / DOMBIVLI (Starts ₹350)">
+                                <option value="Kalyan West (06:15 AM)" data-zone="navi">Kalyan West - 06:15 AM</option>
+                                <option value="Kalyan East (06:20 AM)" data-zone="navi">Kalyan East - 06:20 AM</option>
+                                <option value="Dombivli (06:30 AM)" data-zone="navi">Dombivli (Anantam) - 06:30 AM</option>
+                                <option value="Dombivli (06:50 AM)" data-zone="navi">Dombivli (Katai Naka) - 06:50 AM</option>
+                                <option value="Mumbra (07:15 AM)" data-zone="navi">Mumbra - 07:15 AM</option>
+                            </optgroup>
+                            <optgroup label="SOUTH MUMBAI (Starts ₹300)">
+                                <option value="Nagpada (09:10 AM)" data-zone="south">Nagpada - 09:10 AM</option>
+                                <option value="CSMT (09:25 AM)" data-zone="south">CSMT / GPO - 09:25 AM</option>
+                                <option value="Churchgate (09:30 AM)" data-zone="south">Churchgate - 09:30 AM</option>
+                                <option value="Gateway of India (10:30 AM)" data-zone="south">Gateway of India - 10:30 AM</option>
+                            </optgroup>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="bf-group">
+                    <label>Bus Package</label>
+                    <div class="bf-input-wrapper">
+                        <span class="bf-icon">🚌</span>
+                        <select id="packageType" onchange="calculateTotal()" required>
+                            <option value="" disabled selected>Choose Bus Type...</option>
+                            <option value="ac_no_food">1. AC bus</option>
+                            <option value="basic">2. Non-AC bus</option>
+                            <option value="star">3. AC bus with meal</option>
+                            <option value="sky">4. Non-AC bus with meal</option>
+                        </select>
+                    </div>
+                    <span class="helper" id="price_info">Select location to see prices</span>
+                </div>
+
+                <div class="bf-group">
+                    <label>Passengers</label>
+                    <div class="bf-input-wrapper">
+                        <span class="bf-icon">👥</span>
+                        <input type="number" id="seats" min="1" value="1" oninput="calculateTotal()" required>
+                    </div>
+                </div>
+
+                <div class="bf-footer">
+                    <div class="total-box">
+                        <label>Total Payable</label>
+                        <input type="text" id="totalAmount" value="₹200" readonly>
+                    </div>
+                    <button type="submit" class="pay-btn">
+                        Proceed to Pay <span>➔</span>
+                    </button>
+                </div>
+
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Success Modal -->
+<div id="successModal" class="modal-overlay">
+    <div class="modal-content">
+        <div class="success-icon">🎉</div>
+        <h2 style="color: #27ae60; margin-bottom: 5px;">Payment Successful!</h2>
+        <p style="color: #666; font-size: 0.9rem;">Your seat is almost booked. Please confirm on WhatsApp.</p>
+        <div class="modal-list" id="bookingDetails"></div>
+        <button onclick="redirectToWhatsApp()" class="whatsapp-btn-modal">
+            <svg width="20" height="20" fill="white" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/></svg>
+            Confirm Seat on WhatsApp
+        </button>
+    </div>
+</div>
+
+<script>
+    let currentOrderId = "";
+
+    window.onload = function() {
+        var today = new Date();
+        var dd = String(today.getDate()).padStart(2, '0');
+        var mm = String(today.getMonth() + 1).padStart(2, '0');
+        var yyyy = today.getFullYear();
+        var todayString = yyyy + '-' + mm + '-' + dd;
+        var dateEl = document.getElementById("date");
+        if (dateEl) dateEl.setAttribute("min", todayString);
+        calculateTotal();
+    };
+
+    function calculateTotal() {
+        var pickupSelect = document.getElementById("pickup");
+        var packageSelect = document.getElementById("packageType");
+        var seatsInput = document.getElementById("seats");
+        var totalDisplay = document.getElementById("totalAmount");
+        var priceInfo = document.getElementById("price_info");
+
+        var zone = "western";
+        if (pickupSelect.selectedIndex !== -1) {
+            var selectedOption = pickupSelect.options[pickupSelect.selectedIndex];
+            if (selectedOption.getAttribute('data-zone')) {
+                zone = selectedOption.getAttribute('data-zone');
+            }
+        }
+
+        var packageType = packageSelect.value;
+        var seats = parseInt(seatsInput.value) || 1;
+        var pricePerPerson = 0;
+
+        if (zone === "western" || zone === "central" || zone === "south") {
+            if (packageType === "basic") pricePerPerson = 200;
+            else if (packageType === "ac_no_food") pricePerPerson = 300;
+            else if (packageType === "sky") pricePerPerson = 450;
+            else if (packageType === "star") pricePerPerson = 550;
+        } else if (zone === "navi") {
+            if (packageType === "basic") pricePerPerson = 250;
+            else if (packageType === "ac_no_food") pricePerPerson = 350;
+            else if (packageType === "sky") pricePerPerson = 500;
+            else if (packageType === "star") pricePerPerson = 600;
+        }
+
+        if (priceInfo) {
+            priceInfo.innerText = "Price per person: ₹" + pricePerPerson;
+        }
+
+        var total = pricePerPerson * seats;
+        totalDisplay.value = "₹" + total;
+    }
+
+    async function initiatePayment() {
+        var name    = document.getElementById("name").value;
+        var phone   = document.getElementById("phone").value;
+        var date    = document.getElementById("date").value;
+        var pickup  = document.getElementById("pickup").value;
+        var totalAmtString = document.getElementById("totalAmount").value;
+        var packageSelect  = document.getElementById("packageType");
+        var packageName    = packageSelect.options[packageSelect.selectedIndex].text;
+        var seats   = document.getElementById("seats").value;
+
+        if (!name || !date || !pickup || !phone) {
+            alert("Please fill in all details"); return;
+        }
+        var phonePattern = /^[6-9]\d{9}$/;
+        if (!phonePattern.test(phone)) {
+            alert("Please enter a valid 10-digit mobile number."); return;
+        }
+
+        var totalAmt = parseInt(totalAmtString.replace("₹", ""));
+
+        if (!totalAmt || totalAmt <= 0) {
+            alert("Please select a valid package and pickup location."); return;
+        }
+
+        // Save booking details for WhatsApp message after redirect
+        localStorage.setItem('pendingBooking', JSON.stringify({
+            name: name,
+            phone: phone,
+            date: date,
+            pickup: pickup,
+            package: packageName,
+            seats: seats,
+            total: totalAmtString
+        }));
+
+        // Disable button to prevent double clicks
+        var btn = document.querySelector('.pay-btn');
+        btn.innerHTML = "⏳ Processing...";
+        btn.disabled = true;
+
+        try {
+            // Step 1: Create order on backend PHP file
+            const res = await fetch('/cashfree-order.php', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ amount: totalAmt, name: name, phone: phone })
+            });
+
+            const data = await res.json();
+            const paymentSessionId = data.payment_session_id;
+            currentOrderId = data.order_id;
+
+            if (!paymentSessionId) {
+                alert("Payment initiation failed. Please try again.");
+                btn.innerHTML = "Proceed to Pay ➔";
+                btn.disabled = false;
+                return;
+            }
+
+            // Step 2: Open Cashfree checkout
+            const cashfree = Cashfree({ mode: "production" }); // Change to "sandbox" for testing
+            cashfree.checkout({
+                paymentSessionId: paymentSessionId,
+                redirectTarget: "_self"
+            });
+
+        } catch (error) {
+            console.error("Payment Error:", error);
+            alert("Something went wrong. Please try again.");
+            btn.innerHTML = "Proceed to Pay ➔";
+            btn.disabled = false;
+        }
+    }
+
+    // Called after successful payment (if you use popup mode instead of redirect)
+    function handleSuccess(orderId) {
+        currentOrderId = orderId;
+        var btn = document.querySelector('.pay-btn');
+        if (btn) { btn.innerHTML = "✅ Paid"; btn.style.background = "#27ae60"; btn.disabled = true; }
+
+        sendEmailToAdmin(orderId);
+
+        var name = document.getElementById("name").value;
+        var date = document.getElementById("date").value;
+        var pickup = document.getElementById("pickup").value;
+        var seats = document.getElementById("seats").value;
+        var total = document.getElementById("totalAmount").value;
+        var packageSelect = document.getElementById("packageType");
+        var pkgName = packageSelect.options[packageSelect.selectedIndex].text;
+
+        var detailsHTML = `
+            <p><strong>Name:</strong> <span>${name}</span></p>
+            <p><strong>Date:</strong> <span>${date}</span></p>
+            <p><strong>Package:</strong> <span>${pkgName}</span></p>
+            <p><strong>Pickup:</strong> <span>${pickup.split('(')[0]}</span></p>
+            <p><strong>Seats:</strong> <span>${seats}</span></p>
+            <p><strong>Total Paid:</strong> <span>${total}</span></p>
+            <p><strong>Order ID:</strong> <span style="font-size:0.8rem">${orderId}</span></p>
+        `;
+
+        document.getElementById('bookingDetails').innerHTML = detailsHTML;
+        document.getElementById('successModal').style.display = 'flex';
+    }
+
+    function sendEmailToAdmin(orderId) {
+        var name = document.getElementById("name").value;
+        var phone = document.getElementById("phone").value;
+        var date = document.getElementById("date").value;
+        var pickup = document.getElementById("pickup").value;
+        var packageSelect = document.getElementById("packageType");
+        var packageName = packageSelect.options[packageSelect.selectedIndex].text;
+        var seats = document.getElementById("seats").value;
+        var totalAmount = document.getElementById("totalAmount").value;
+
+        var formData = new FormData();
+        formData.append("access_key", "YOUR_WEB3FORMS_KEY"); // Your Web3Forms key
+        formData.append("subject", "PAID Booking - " + name);
+        formData.append("from_name", "Mumbai Darshan CO");
+        formData.append("Order ID", orderId);
+        formData.append("Name", name);
+        formData.append("Phone", phone);
+        formData.append("Date", date);
+        formData.append("Pickup", pickup);
+        formData.append("Package", packageName);
+        formData.append("Seats", seats);
+        formData.append("Total Paid", totalAmount);
+
+        fetch("https://api.web3forms.com/submit", {
+            method: "POST", body: formData
+        }).catch(e => console.log("Email Error", e));
+    }
+
+    function redirectToWhatsApp() {
+        var booking = JSON.parse(localStorage.getItem('pendingBooking') || '{}');
+
+        var message = "Hello, I have made a payment for Mumbai Darshan.%0a" +
+                      "-----------------------%0a" +
+                      "*ORDER ID:* " + currentOrderId + " (PAID)%0a" +
+                      "-----------------------%0a" +
+                      "*Name:* " + (booking.name || '') + "%0a" +
+                      "*Phone:* " + (booking.phone || '') + "%0a" +
+                      "*Date:* " + (booking.date || '') + "%0a" +
+                      "*Pickup:* " + (booking.pickup || '') + "%0a" +
+                      "*Package:* " + (booking.package || '') + "%0a" +
+                      "*Passengers:* " + (booking.seats || '') + "%0a" +
+                      "*Total Paid:* " + (booking.total || '') + "%0a" +
+                      "-----------------------%0a" +
+                      "Booked on YOUR-DOMAIN.com";
+
+        window.location.href = "https://wa.me/YOUR_WHATSAPP_NUMBER?text=" + message;
+    }
+</script>

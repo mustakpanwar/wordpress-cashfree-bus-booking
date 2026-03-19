@@ -1,0 +1,541 @@
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://sdk.cashfree.com/js/v3/cashfree.js"></script>
+
+<style>
+    .custom-booking-wrapper, .custom-booking-wrapper * {
+        box-sizing: border-box;
+        font-family: 'Poppins', sans-serif;
+    }
+
+    :root {
+        --primary: #d35400;
+        --primary-hover: #e67e22;
+        --secondary: #2c3e50;
+        --border-color: #e0e0e0;
+    }
+
+    /* ===== POPUP OVERLAY ===== */
+    .booking-popup-overlay {
+        display: none;
+        position: fixed;
+        top: 0; left: 0;
+        width: 100%; height: 100%;
+        background: rgba(0, 0, 0, 0.75);
+        z-index: 999999;
+        justify-content: center;
+        align-items: center;
+        backdrop-filter: blur(4px);
+        padding: 15px;
+    }
+    .booking-popup-overlay.active {
+        display: flex;
+    }
+
+    /* ===== POPUP CARD ===== */
+    .booking-popup-card {
+        background: #ffffff;
+        padding: 35px;
+        border-radius: 16px;
+        box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        border-top: 6px solid var(--primary);
+        width: 100%;
+        max-width: 750px;
+        max-height: 90vh;
+        overflow-y: auto;
+        position: relative;
+        animation: popupZoomIn 0.3s ease;
+    }
+    @keyframes popupZoomIn {
+        from { transform: scale(0.9); opacity: 0; }
+        to   { transform: scale(1);   opacity: 1; }
+    }
+
+    /* Close Button */
+    .popup-close-btn {
+        position: absolute;
+        top: 15px; right: 20px;
+        background: #f0f0f0;
+        border: none;
+        width: 35px; height: 35px;
+        border-radius: 50%;
+        font-size: 18px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #333;
+        transition: background 0.2s;
+        font-family: 'Poppins', sans-serif;
+    }
+    .popup-close-btn:hover { background: #e74c3c; color: white; }
+
+    /* Header */
+    .booking-header {
+        text-align: center;
+        margin-bottom: 25px;
+        border-bottom: 1px solid #f0f0f0;
+        padding-bottom: 15px;
+        padding-right: 30px;
+    }
+    .booking-header h3 {
+        color: var(--secondary);
+        font-size: 22px;
+        margin: 0 0 6px 0;
+        font-weight: 700;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+    }
+    .booking-header p {
+        font-size: 13px;
+        color: #777;
+        margin: 0;
+    }
+
+    /* Form Grid */
+    .bf-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 20px;
+    }
+    .bf-group { display: flex; flex-direction: column; }
+    .bf-group label {
+        font-size: 12px;
+        font-weight: 600;
+        color: var(--secondary);
+        margin-bottom: 5px;
+        margin-left: 4px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    .bf-input-wrapper {
+        position: relative;
+        display: flex;
+        align-items: center;
+    }
+    .bf-icon {
+        position: absolute;
+        left: 14px;
+        font-size: 16px;
+        color: #888;
+        z-index: 10;
+        pointer-events: none;
+        display: flex;
+        align-items: center;
+        height: 100%;
+    }
+    .bf-group input,
+    .bf-group select {
+        width: 100%;
+        height: 48px;
+        padding: 0 15px 0 45px !important;
+        border: 2px solid var(--border-color) !important;
+        border-radius: 10px !important;
+        font-size: 14px !important;
+        background-color: #f3f3f3 !important;
+        color: #333 !important;
+        transition: all 0.3s ease;
+        outline: none;
+        appearance: none;
+        font-family: 'Poppins', sans-serif;
+    }
+    .bf-group select {
+        background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23333%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E");
+        background-repeat: no-repeat;
+        background-position: right 14px top 50%;
+        background-size: 10px auto;
+    }
+    .bf-group input:focus,
+    .bf-group select:focus {
+        border-color: var(--primary) !important;
+        box-shadow: 0 0 0 4px rgba(211, 84, 0, 0.1) !important;
+        background-color: #fff !important;
+    }
+    .helper { font-size: 11px; color: #777; margin-top: 4px; margin-left: 5px; }
+
+    /* Footer */
+    .bf-footer {
+        grid-column: span 2;
+        background: #fff9f0;
+        padding: 18px 22px;
+        border-radius: 12px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border: 1px solid #ffeeba;
+        margin-top: 10px;
+    }
+    .total-box label {
+        font-size: 11px;
+        color: #666;
+        display: block;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+    .total-box input {
+        border: none !important;
+        background: transparent !important;
+        font-size: 26px !important;
+        font-weight: 800 !important;
+        color: var(--primary) !important;
+        width: 150px;
+        padding: 0 !important;
+        height: auto !important;
+        box-shadow: none !important;
+    }
+    .pay-btn {
+        background: linear-gradient(135deg, var(--primary), var(--primary-hover));
+        color: white;
+        padding: 13px 35px;
+        border-radius: 50px;
+        font-size: 15px;
+        font-weight: 700;
+        border: none;
+        cursor: pointer;
+        transition: transform 0.2s, box-shadow 0.2s;
+        box-shadow: 0 5px 15px rgba(211, 84, 0, 0.3);
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        font-family: 'Poppins', sans-serif;
+    }
+    .pay-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 25px rgba(211, 84, 0, 0.4);
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+        .bf-grid { grid-template-columns: 1fr; gap: 15px; }
+        .bf-footer { grid-column: span 1; flex-direction: column; gap: 15px; text-align: center; }
+        .total-box input { text-align: center; }
+        .pay-btn { width: 100%; justify-content: center; }
+        .booking-popup-card { padding: 25px 18px; }
+    }
+
+    /* ===== TRIGGER BUTTONS ===== */
+    .open-booking-popup {
+        background: linear-gradient(135deg, #d35400, #e67e22);
+        color: white !important;
+        padding: 14px 32px;
+        border-radius: 50px;
+        font-size: 15px;
+        font-weight: 700;
+        border: none;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        text-decoration: none !important;
+        box-shadow: 0 5px 15px rgba(211, 84, 0, 0.3);
+        transition: transform 0.2s, box-shadow 0.2s;
+        font-family: 'Poppins', sans-serif;
+    }
+    .open-booking-popup:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 25px rgba(211, 84, 0, 0.4);
+        color: white !important;
+    }
+</style>
+
+<!-- ===== POPUP MODAL ===== -->
+<div class="booking-popup-overlay" id="bookingPopupOverlay">
+    <div class="booking-popup-card">
+
+        <button class="popup-close-btn" onclick="closeBookingPopup()">✕</button>
+
+        <div class="booking-header">
+            <h3>⚡ Book Seat Online</h3>
+            <p>Instant Confirmation • 100% Secure Payment</p>
+        </div>
+
+        <form id="popup_bookingForm" onsubmit="popupInitiatePayment(); return false;">
+            <div class="bf-grid">
+
+                <div class="bf-group">
+                    <label>Full Name</label>
+                    <div class="bf-input-wrapper">
+                        <span class="bf-icon">👤</span>
+                        <input type="text" id="popup_name" placeholder="Enter your full name" required>
+                    </div>
+                </div>
+
+                <div class="bf-group">
+                    <label>Mobile Number</label>
+                    <div class="bf-input-wrapper">
+                        <span class="bf-icon">📞</span>
+                        <input type="tel" id="popup_phone" placeholder="10-digit number"
+                               pattern="[6-9][0-9]{9}" maxlength="10"
+                               oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, 10)"
+                               required>
+                    </div>
+                </div>
+
+                <div class="bf-group">
+                    <label>Journey Date</label>
+                    <div class="bf-input-wrapper">
+                        <span class="bf-icon">📅</span>
+                        <input type="date" id="popup_date" required>
+                    </div>
+                </div>
+
+                <div class="bf-group">
+                    <label>Pickup Point</label>
+                    <div class="bf-input-wrapper">
+                        <span class="bf-icon">📍</span>
+                        <select id="popup_pickup" onchange="popupCalculateTotal()" required>
+                            <option value="" data-zone="western">Select Pickup Location...</option>
+                            <optgroup label="WESTERN LINE (Starts ₹200)">
+                                <option value="Bhayander (06:20 AM)" data-zone="western">Bhayander - 06:20 AM</option>
+                                <option value="Mira Road (06:25 AM)" data-zone="western">Mira Road - 06:25 AM</option>
+                                <option value="Dahisar (06:45 AM)" data-zone="western">Dahisar - 06:45 AM</option>
+                                <option value="Borivali East (07:00 AM)" data-zone="western">Borivali East - 07:00 AM</option>
+                                <option value="Borivali West (07:00 AM)" data-zone="western">Borivali West - 07:00 AM</option>
+                                <option value="Kandivali East (07:30 AM)" data-zone="western">Kandivali East - 07:30 AM</option>
+                                <option value="Malad East (07:40 AM)" data-zone="western">Malad East - 07:40 AM</option>
+                                <option value="Goregaon East (07:45 AM)" data-zone="western">Goregaon East - 07:45 AM</option>
+                                <option value="Jogeshwari East (07:50 AM)" data-zone="western">Jogeshwari East - 07:50 AM</option>
+                                <option value="Andheri East (08:00 AM)" data-zone="western">Andheri East - 08:00 AM</option>
+                                <option value="Vile Parle East (08:05 AM)" data-zone="western">Vile Parle East - 08:05 AM</option>
+                                <option value="Santacruz East (08:10 AM)" data-zone="western">Santacruz East - 08:10 AM</option>
+                                <option value="Bandra East (08:15 AM)" data-zone="western">Bandra East - 08:15 AM</option>
+                                <option value="Mumbai Central (09:00 AM)" data-zone="western">Mumbai Central - 09:00 AM</option>
+                            </optgroup>
+                            <optgroup label="CENTRAL LINE (Starts ₹250)">
+                                <option value="Thane West (07:15 AM)" data-zone="central">Thane West - 07:15 AM</option>
+                                <option value="Mulund West (07:35 AM)" data-zone="central">Mulund West - 07:35 AM</option>
+                                <option value="Bhandup East (08:00 AM)" data-zone="central">Bhandup East - 08:00 AM</option>
+                                <option value="Vikhroli East (08:10 AM)" data-zone="central">Vikhroli East - 08:10 AM</option>
+                                <option value="Ghatkopar East (08:15 AM)" data-zone="central">Ghatkopar East - 08:15 AM</option>
+                                <option value="Chembur (08:20 AM)" data-zone="central">Chembur - 08:20 AM</option>
+                                <option value="Sion (08:35 AM)" data-zone="central">Sion Circle - 08:35 AM</option>
+                                <option value="Matunga (08:40 AM)" data-zone="central">Matunga - 08:40 AM</option>
+                                <option value="Dadar East (08:45 AM)" data-zone="central">Dadar East - 08:45 AM</option>
+                                <option value="Parel (08:50 AM)" data-zone="central">Parel - 08:50 AM</option>
+                                <option value="Byculla East (09:15 AM)" data-zone="central">Byculla East - 09:15 AM</option>
+                            </optgroup>
+                            <optgroup label="NAVI MUMBAI (Starts ₹350)">
+                                <option value="Panvel (06:30 AM)" data-zone="navi">Panvel - 06:30 AM</option>
+                                <option value="Kalamboli (06:40 AM)" data-zone="navi">Kalamboli - 06:40 AM</option>
+                                <option value="Kamothe (06:45 AM)" data-zone="navi">Kamothe - 06:45 AM</option>
+                                <option value="Kharghar (07:00 AM)" data-zone="navi">Kharghar - 07:00 AM</option>
+                                <option value="Belapur (07:05 AM)" data-zone="navi">Belapur - 07:05 AM</option>
+                                <option value="Seawoods (07:10 AM)" data-zone="navi">Seawoods - 07:10 AM</option>
+                                <option value="Nerul (07:15 AM)" data-zone="navi">Nerul - 07:15 AM</option>
+                                <option value="Vashi (07:30 AM)" data-zone="navi">Vashi - 07:30 AM</option>
+                                <option value="Koperkhairane (07:40 AM)" data-zone="navi">Koperkhairane - 07:40 AM</option>
+                                <option value="Airoli (08:00 AM)" data-zone="navi">Airoli - 08:00 AM</option>
+                                <option value="Ghansoli (07:30 AM)" data-zone="navi">Ghansoli - 07:30 AM</option>
+                                <option value="Rabale (07:35 AM)" data-zone="navi">Rabale - 07:35 AM</option>
+                            </optgroup>
+                            <optgroup label="KALYAN / DOMBIVLI (Starts ₹350)">
+                                <option value="Kalyan West (06:15 AM)" data-zone="navi">Kalyan West - 06:15 AM</option>
+                                <option value="Kalyan East (06:20 AM)" data-zone="navi">Kalyan East - 06:20 AM</option>
+                                <option value="Dombivli (06:30 AM)" data-zone="navi">Dombivli (Anantam) - 06:30 AM</option>
+                                <option value="Dombivli (06:50 AM)" data-zone="navi">Dombivli (Katai Naka) - 06:50 AM</option>
+                                <option value="Mumbra (07:15 AM)" data-zone="navi">Mumbra - 07:15 AM</option>
+                            </optgroup>
+                            <optgroup label="SOUTH MUMBAI (Starts ₹300)">
+                                <option value="Nagpada (09:10 AM)" data-zone="south">Nagpada - 09:10 AM</option>
+                                <option value="CSMT (09:25 AM)" data-zone="south">CSMT / GPO - 09:25 AM</option>
+                                <option value="Churchgate (09:30 AM)" data-zone="south">Churchgate - 09:30 AM</option>
+                                <option value="Gateway of India (10:30 AM)" data-zone="south">Gateway of India - 10:30 AM</option>
+                            </optgroup>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="bf-group">
+                    <label>Bus Package</label>
+                    <div class="bf-input-wrapper">
+                        <span class="bf-icon">🚌</span>
+                        <select id="popup_packageType" onchange="popupCalculateTotal()" required>
+                            <option value="" disabled selected>Choose Bus Type...</option>
+                            <option value="ac_no_food">1. AC bus</option>
+                            <option value="basic">2. Non-AC bus</option>
+                            <option value="star">3. AC bus with meal</option>
+                            <option value="sky">4. Non-AC bus with meal</option>
+                        </select>
+                    </div>
+                    <span class="helper" id="popup_price_info">Select location to see prices</span>
+                </div>
+
+                <div class="bf-group">
+                    <label>Passengers</label>
+                    <div class="bf-input-wrapper">
+                        <span class="bf-icon">👥</span>
+                        <input type="number" id="popup_seats" min="1" value="1" oninput="popupCalculateTotal()" required>
+                    </div>
+                </div>
+
+                <div class="bf-footer">
+                    <div class="total-box">
+                        <label>Total Payable</label>
+                        <input type="text" id="popup_totalAmount" value="₹200" readonly>
+                    </div>
+                    <button type="submit" class="pay-btn popup-pay-btn">
+                        Proceed to Pay <span>➔</span>
+                    </button>
+                </div>
+
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    if (typeof window.popupOrderId === "undefined") { window.popupOrderId = ""; }
+
+    // Set minimum date
+    window.addEventListener('DOMContentLoaded', function() {
+        var today = new Date();
+        var dd    = String(today.getDate()).padStart(2, '0');
+        var mm    = String(today.getMonth() + 1).padStart(2, '0');
+        var yyyy  = today.getFullYear();
+        var dateEl = document.getElementById("popup_date");
+        if (dateEl) dateEl.setAttribute("min", yyyy + '-' + mm + '-' + dd);
+        popupCalculateTotal();
+
+        // Open popup for all .open-booking-popup buttons/links on page
+        document.addEventListener('click', function(e) {
+            if (e.target.closest('.open-booking-popup')) {
+                e.preventDefault();
+                openBookingPopup();
+            }
+        });
+
+        // Close on overlay click
+        document.getElementById('bookingPopupOverlay').addEventListener('click', function(e) {
+            if (e.target === this) closeBookingPopup();
+        });
+
+        // Close on ESC key
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') closeBookingPopup();
+        });
+    });
+
+    function openBookingPopup() {
+        document.getElementById('bookingPopupOverlay').classList.add('active');
+        document.body.style.overflow = 'hidden';
+    }
+
+    function closeBookingPopup() {
+        document.getElementById('bookingPopupOverlay').classList.remove('active');
+        document.body.style.overflow = '';
+    }
+
+    function popupCalculateTotal() {
+        var pickupSelect  = document.getElementById("popup_pickup");
+        var packageSelect = document.getElementById("popup_packageType");
+        var seatsInput    = document.getElementById("popup_seats");
+        var totalDisplay  = document.getElementById("popup_totalAmount");
+        var priceInfo     = document.getElementById("popup_price_info");
+
+        var zone = "western";
+        if (pickupSelect.selectedIndex !== -1) {
+            var selectedOption = pickupSelect.options[pickupSelect.selectedIndex];
+            if (selectedOption.getAttribute('data-zone')) {
+                zone = selectedOption.getAttribute('data-zone');
+            }
+        }
+
+        var packageType   = packageSelect.value;
+        var seats         = parseInt(seatsInput.value) || 1;
+        var pricePerPerson = 0;
+
+        if (zone === "western" || zone === "central" || zone === "south") {
+            if (packageType === "basic")      pricePerPerson = 200;
+            else if (packageType === "ac_no_food") pricePerPerson = 300;
+            else if (packageType === "sky")   pricePerPerson = 450;
+            else if (packageType === "star")  pricePerPerson = 550;
+        } else if (zone === "navi") {
+            if (packageType === "basic")      pricePerPerson = 250;
+            else if (packageType === "ac_no_food") pricePerPerson = 350;
+            else if (packageType === "sky")   pricePerPerson = 500;
+            else if (packageType === "star")  pricePerPerson = 600;
+        }
+
+        if (priceInfo) priceInfo.innerText = "Price per person: ₹" + pricePerPerson;
+        totalDisplay.value = "₹" + (pricePerPerson * seats);
+    }
+
+    async function popupInitiatePayment() {
+        var name          = document.getElementById("popup_name").value;
+        var phone         = document.getElementById("popup_phone").value;
+        var date          = document.getElementById("popup_date").value;
+        var pickup        = document.getElementById("popup_pickup").value;
+        var totalAmtString = document.getElementById("popup_totalAmount").value;
+        var packageSelect  = document.getElementById("popup_packageType");
+        var packageName    = packageSelect.options[packageSelect.selectedIndex].text;
+        var seats         = document.getElementById("popup_seats").value;
+
+        if (!name || !date || !pickup || !phone) { alert("Please fill in all details"); return; }
+
+        var phonePattern = /^[6-9]\d{9}$/;
+        if (!phonePattern.test(phone)) { alert("Please enter a valid 10-digit mobile number."); return; }
+
+        var totalAmt = parseInt(totalAmtString.replace("₹", ""));
+        if (!totalAmt || totalAmt <= 0) { alert("Please select a valid package and pickup location."); return; }
+
+        localStorage.setItem('pendingBooking', JSON.stringify({
+            name: name, phone: phone, date: date, pickup: pickup,
+            package: packageName, seats: seats, total: totalAmtString
+        }));
+
+        var btn = document.querySelector('.pay-btn');
+        btn.innerHTML = "⏳ Processing...";
+        btn.disabled = true;
+
+        try {
+            const res = await fetch('/cashfree-order.php', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    amount: totalAmt, name: name, phone: phone,
+                    date: date, pickup: pickup, package: packageName,
+                    seats: seats, total: totalAmt
+                })
+            });
+
+            const data = await res.json();
+            const paymentSessionId = data.payment_session_id;
+            window.popupOrderId = data.order_id;
+
+            if (!paymentSessionId) {
+                alert("Payment initiation failed. Please try again.");
+                btn.innerHTML = "Proceed to Pay ➔";
+                btn.disabled = false;
+                return;
+            }
+
+            const cashfree = Cashfree({ mode: "production" });
+            cashfree.checkout({ paymentSessionId: paymentSessionId, redirectTarget: "_self" });
+
+        } catch (error) {
+            console.error("Payment Error:", error);
+            alert("Something went wrong. Please try again.");
+            btn.innerHTML = "Proceed to Pay ➔";
+            btn.disabled = false;
+        }
+    }
+
+    function popupRedirectToWhatsApp() {
+        var booking = JSON.parse(localStorage.getItem('pendingBooking') || '{}');
+        var message = "Hello, I have made a payment for Mumbai Darshan.%0a" +
+                      "-----------------------%0a" +
+                      "*ORDER ID:* " + window.popupOrderId + " (PAID)%0a" +
+                      "-----------------------%0a" +
+                      "*Name:* " + (booking.name || '') + "%0a" +
+                      "*Phone:* " + (booking.phone || '') + "%0a" +
+                      "*Date:* " + (booking.date || '') + "%0a" +
+                      "*Pickup:* " + (booking.pickup || '') + "%0a" +
+                      "*Package:* " + (booking.package || '') + "%0a" +
+                      "*Passengers:* " + (booking.seats || '') + "%0a" +
+                      "*Total Paid:* " + (booking.total || '') + "%0a" +
+                      "-----------------------%0a" +
+                      "Booked on YOUR-DOMAIN.com";
+        window.location.href = "https://wa.me/YOUR_WHATSAPP_NUMBER?text=" + message;
+    }
+</script>
